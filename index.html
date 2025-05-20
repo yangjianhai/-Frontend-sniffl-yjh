@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head> <!-- 包含文档的元数据，如字符编码、页面标题、外部资源引用等 -->
+    <!-- 设置文档的字符编码为 UTF-8，确保能正确显示各种字符 -->
+    <meta charset="UTF-8"> 
+    <!-- 让页面在不同设备上正确显示，宽度根据设备屏幕宽度调整，初始缩放比例为 1 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+
+    <!-- 引入 Font Awesome 图标库的 CSS 文件（版本 5.15.3），用于显示图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
+    <!-- 引入自定义的 CSS 文件，用于设置页面的个性化样式 -->
+    <link rel="stylesheet" href="示例.css"> 
+
+    <!-- 设置页面的标题 -->
+    <title>分布式光伏智能运维平台</title> 
+
+    <!-- 预连接到 Google 字体服务，优化字体加载性能 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 引入 Pacifico 字体，可用于特定的文本样式设置 -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- 引入 Flatpickr 日历库的 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- 引入 Font Awesome 图标库的 CSS 文件（版本 6.4.0），用于显示图标，可根据实际需求决定是否保留两个版本 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+    <!-- 引入 Flatpickr 日历库的 CSS 文件，用于设置日历的样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> 
+
+    <!-- 引入 Tailwind CSS 的 JavaScript 文件，用于快速构建响应式界面 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Echarts 图表库的 JavaScript 文件（版本 5.5.0），用于创建各种图表 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+
+    <!-- 引入 Element UI 的 CSS 文件（版本 2.15.13），用于使用 Element UI 的组件样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.13/lib/theme-chalk/index.css">
+    <!-- 引入 Vue.js 的 JavaScript 文件（版本 2.6.14），作为构建 Vue 应用的基础 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- 引入 Element UI 的 JavaScript 文件（版本 2.15.13），用于使用 Element UI 的组件功能 -->
+    <script src="https://unpkg.com/element-ui@2.15.13/lib/index.js"></script>
+
+    <!-- 引入自定义的 JavaScript 文件，可能用于处理数据定时相关的逻辑 -->
+    <script src="data_timer.js"></script>
+    <!-- 引入自定义的 JavaScript 文件，可能用于处理主题菜单相关的逻辑 -->
+    <script src="theme/zhuti_menu.js"></script>
+
+    <!-- 引入自定义的 JavaScript 文件，用于处理 PV 相关的逻辑 -->
+    <script src="PV.js"></script>
+
+    <!-- 与时间冲突 -->
+    <script src="Load Data/json.js"></script>
+    <style>
+        .custom-menu-height {
+            min-height: 100vh; /* 设置为视口高度的100% */
+        }
+        #station-select:valid + div {
+            display: flex !important;
+        }
+        </style>
+    </head>
+    <!-- 主界面显示内容 -->
+<body>
+
+    <!-- 登录后显示的区域 -->
+    <div id="successMessage"style="display: block;">
+        <div class="flex h-screen">
+            <!-- 左侧菜单 -->
+            <div class="w-64 bg-primary flex-shrink-0">
+                <!-- 菜单头部 -->
+                <div class="h-16 flex items-center px-3 border-b border-secondary">
+                    <!-- 公司标志字体部分 -->
+                    <div class="font-['Pacifico'] text-white text-3xl"></div>
+                    <!-- logo_公司名称 -->
+                    <div class="font-['Pacifico'] text-white text-4xl">yuf</div>
+                    <span class="text-white ml-2 text-xl">成都昱风科技公司</span>
+                </div>
+                <div id="appyjh"class="bg-primary">
+                    <el-row class="tac">
+                    <el-col :span="24" class="custom-menu-height bg-p">
+                    <el-menu default-active="1" class="el-menu-vertical-demo py-11 custom-menu-height" @open="handleOpen" @close="handleClose"
+                    background-color="#0088cc" text-color="#fff"  active-text-color="#ffd04b" >
+                    <!-- 运行监测菜单组 -->
+                        <el-submenu index="1">
+                            <template slot="title">
+                                <i class="fas fa-chart-line zhuti menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti mr-5 menu-text" style="margin-left: 1px;">运行监测</span>
+                            </template>
+                            <el-menu-item index="1-1" @click="loadMonitorView()">
+                                <i class="fas fa-tachometer-alt zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">实时监测</span>
+                            </el-menu-item>
+                            <el-menu-item index="1-2" @click="loadNetworkView()">
+                                <i class="fas fa-network-wired zhuti2 menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti2 ml-1 menu-text">通讯组网</span>
+                            </el-menu-item>
+                        </el-submenu>
+                        <!-- 告警中心菜单组 -->
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <i class="fas fa-bell zhuti menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti mr-5 menu-text" style="margin-left: 1px;">告警中心</span>
+                            </template>
+                            <el-menu-item index="2-1" @click="loadRealtimeAlarmView()">
+                                <i class="fas fa-warning zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">实时告警</span>
+                            </el-menu-item>
+                            <el-menu-item index="2-2" @click="loadHistoryAlarmView()">
+                                <i class="fas fa-history zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">历史告警</span>
+                            </el-menu-item>
+                            <el-menu-item index="2-3" @click="loadFaultStatusView()">
+                                <i class="fas fa-calendar zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">故障状态</span>
+                            </el-menu-item>
+                        </el-submenu>
+                        <!-- 数据中心菜单组 -->
+                        <el-submenu index="3">
+                            <template slot="title">
+                                <i class="fas fa-database  zhuti menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti mr-5 menu-text" style="margin-left: 1px;">数据中心</span>
+                            </template>
+                            <el-menu-item index="3-1" @click="loadPowerGenerationView()">
+                                <i class="fas  fa-bolt zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">发电数据</span>
+                            </el-menu-item>
+                            <el-menu-item index="3-2" @click="loadPanelDataView()">
+                                <i class="fas fa-solar-panel zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-1 menu-text">光伏组件数据</span>
+                            </el-menu-item>
+                            <el-menu-item index="3-3" @click="loadPowerPredictionView()">
+                                <i class="fas fa-chart-line zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">功率预测数据</span>
+                            </el-menu-item>
+                            <el-menu-item index="3-4" @click="loadWeatherDataView()">
+                                <i class="fas fa-cloud-sun zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">气象数据</span>
+                            </el-menu-item>
+                        </el-submenu>
+                        <!-- 智能分析菜单项 -->
+                        <el-submenu index="4">
+                            <template slot="title">
+                                <i class="fas fa-brain zhuti menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti mr-5 menu-text" style="margin-left: 1px;">智能分析</span>
+                            </template>
+                            <el-menu-item index="4-1" @click="loadguzhangView()">
+                                <i class="fas fa-bolt zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">故障诊断</span>
+                            </el-menu-item>
+                        </el-submenu>
+                        <!-- 场站管理菜单组 -->
+                        <el-submenu index="5">
+                            <template slot="title">
+                                <i class="fas fa-solar-panel zhuti menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti mr-5 menu-text" style="margin-left: 1px;">场站管理</span>
+                            </template>
+                            <el-menu-item index="5-1" @click="loadEnterpriseView()">
+                                <i class="fas fa-building zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">企业管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="5-2" @click="loadStationView()">
+                                <i class="fas fa-industry zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-1 menu-text">场站管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="5-3" @click="loadEquipmentView()">
+                                <i class="fas fa-tools zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">设备管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="5-4" @click="loadPersonnelView()">
+                                <i class="fas fa-users zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-1 menu-text">人员管理</span>
+                            </el-menu-item>
+                        </el-submenu>
+                        <!-- 后台管理菜单组 -->
+                        <el-submenu index="6">
+                            <template slot="title">
+                                <i class="fas fa-cog zhuti menu-icon" style="color: #fff; "></i>
+                                <span class="zhuti mr-5 menu-text" style="margin-left: 1px;">后台管理</span>
+                            </template>
+                            <el-menu-item index="6-1" @click="loadUserView()">
+                                <i class="fas fa-user zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">用户管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="6-2" @click="loadRoleView()">
+                                <i class="fas fa-user-tag zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-1 menu-text">角色管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="6-3" @click="loadPermissionView()">
+                                <i class="fas fa-lock zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">权限管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="6-4" @click="loadLogView()">
+                                <i class="fas fa-file-alt zhuti2 menu-icon" style="color: #fff; " ></i>
+                                <span class="zhuti2 ml-2 menu-text">日志管理</span>
+                            </el-menu-item>
+                        </el-submenu>
+                    </el-menu>
+                    </el-col>
+                    </el-row>
+                </div>
+
+            </div>
+            <!-- 主要内容区域 -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- 顶部导航栏 -->
+                <header class="h-16 bg-primary border-b flex items-center justify-between px-6">
+                    <!-- 页面标题 -->
+                    <h1 class="text-3xl font-medium "style="color: white; ">分布式光伏智能运维平台</h1>
+                    <div class="flex items-center space-x-4">
+                        <!-- 日期和时间显示 -->
+                        <div class="flex items-center date-time-container1 text-white">
+                            <!-- 天气图标 --> 
+                            <i class="fas fa-cloud text-yellow-500 text-4xl ml-2 mr-2"></i>
+
+                            <!-- 日期和时间 -->
+                            <div class=" flex flex-col items-cente items-center">                           
+                                <!-- 日期 -->
+                                <span id="current-date">2022-01-01</span>
+                                <!-- 时间 -->
+                                <span id="current-time" class="">12:00:00</span>
+                            </div>
+                        </div>  
+                        <!-- 用户信息显示 -->
+                        <div class="flex items-center cursor-pointer text-white" onclick="toggleAccountDetails()">
+                            <!-- 用户图标 -->     
+
+                             <img src="../HTML学习/二维码.png" style="width: 24px; height: 24px; fill: #fff;" class="mr-2"> <!-- 这行可以删除 -->
+                            <!-- 用户图标 -->
+                            <i class="fas fa-user-circle text-2xl text-white-600 mr-2"></i>
+                            <!-- 用户名称 -->
+                            <span>张先生</span>
+                        </div>
+                        <!-- 账号详情和退出登录按钮 -->
+                        <div id="accountDetails" class="hidden absolute top-16 right-6 bg-white border rounded-lg shadow-lg p-4">
+                            <p>账号详情：张先生</p>
+                            <button class="mt-2 px-4 py-2 bg-primary text-white rounded-button" onclick="logout()">退出登录</button>
+                        </div>
+                    </div>
+                </header>
+                <!-- 界面内容区域 -->
+                <main class="flex-1 overflow-auto p-6">                    
+                </main>
+
+            </div>
+        </div> 
+            
+    </div>
+    <!-- 页面内容 -->
+
+
+    <script src="示例.js"></script>
+    <script src="Operational Monitoring/jk_yjh.js"></script>
+    <script src="Operational Monitoring/zw_yjh.js"></script>
+    <script src="Alarm Center/shishi_yjh.js"></script>
+    <script src="Alarm Center/lishi_yjh.js"></script>
+    <script src="Alarm Center/guzhang_yjh.js"></script>
+    <script src="Smart Analysis/gd_yjh.js"></script>
+    
+
+
+    <script src="theme/munu.js"></script>
+    <!-- 引入自定义的 JavaScript 文件，用于处理jk_yjh.js PV 相关的逻辑,目前点击其它界面后无法进行切换 -->
+     
+    <script src="Operational Monitoring/PV.js"></script>
+
+</body>
+</html>
